@@ -329,48 +329,32 @@ td, th {
 
 
 @media (max-width: 600px) {
-  body {
-    padding: 10px;
+
+  /* main table scroll container */
+  #mainTable {
+    min-width: 650px;
   }
 
-  h1 {
-    font-size: 18px;
-    text-align: center;
+  /* hide less important columns */
+  #mainTable th:nth-child(4),
+  #mainTable td:nth-child(4),
+  #mainTable th:nth-child(5),
+  #mainTable td:nth-child(5) {
+    display: none;
   }
 
   td, th {
-    font-size: 13px;
+    font-size: 12px;
     padding: 6px;
   }
 
   .player-name {
     max-width: 90px;
-    font-size: 13px;
   }
-
-  .player-btn {
-    width: 18px;
-    height: 18px;
-    font-size: 10px;
-  }
-
-  .game-btn {
-    font-size: 12px;
-    padding: 5px 10px;
-  }
-
-  #detailsPanel table {
-    min-width: 500px;
-  }
-}
-
-
-#mainTable thead th {
-  position: sticky;
-  top: 0;
-  z-index: 5;
 }
 
 button {
   touch-action: manipulation;
 }
+
+
