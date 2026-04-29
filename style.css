@@ -11,6 +11,31 @@ body {
   margin: auto;
 }
 
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+/* allow table to expand */
+#mainTable {
+  min-width: 700px;
+}
+
+/* STICKY PLAYER COLUMN */
+#mainTable td:nth-child(2),
+#mainTable th:nth-child(2) {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #151821;
+}
+
+/* keep header above cells */
+#mainTable th:nth-child(2) {
+  z-index: 3;
+}
+
+
 h1 {
   letter-spacing: 1px;
   font-weight: 700;
@@ -54,12 +79,10 @@ tbody tr:nth-child(even) { background: #161a22; }
 .name-cell {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+  justify-content: space-between; /* ← key fix */
+  gap: 6px;
 
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 140px;
 }
 
 .player-name {
@@ -298,4 +321,56 @@ th:hover i {
 th.sorted i {
   opacity: 1;
   color: #ffd25a;
+}
+
+td, th {
+  white-space: nowrap;
+}
+
+
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  td, th {
+    font-size: 13px;
+    padding: 6px;
+  }
+
+  .player-name {
+    max-width: 90px;
+    font-size: 13px;
+  }
+
+  .player-btn {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+
+  .game-btn {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  #detailsPanel table {
+    min-width: 500px;
+  }
+}
+
+
+#mainTable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+button {
+  touch-action: manipulation;
 }
