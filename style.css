@@ -152,6 +152,12 @@ td {
   vertical-align: middle;
 }
 
+/* Center text in Games Played and Streak columns */
+#mainTable td:nth-child(5),
+#mainTable td:nth-child(6) {
+  text-align: center;
+}
+
 tbody tr:nth-child(odd) { background: #0f1115; }
 tbody tr:nth-child(even) { background: #161a22; }
 
@@ -299,6 +305,10 @@ tbody tr:nth-child(even) { background: #161a22; }
 /* STREAK */
 .streak-cell {
   width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .streak-icon.hot { color: #ff7b3a; }
@@ -425,7 +435,7 @@ td:first-child {
 
 #detailsPanel .table-wrap table th:nth-child(1),
 #detailsPanel .table-wrap table td:nth-child(1) {
-  width: 30%;
+  width: 15%;
 }
 
 #detailsPanel .table-wrap table th:nth-child(2),
@@ -437,7 +447,7 @@ td:first-child {
 
 #detailsPanel .table-wrap table th:nth-child(4),
 #detailsPanel .table-wrap table td:nth-child(4) {
-  width: 30%;
+  width: 35%;
 }
 
 
@@ -497,6 +507,7 @@ td:first-child {
   width: 40px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 3px;
   font-size: 14px;
 }
