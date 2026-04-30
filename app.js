@@ -14,6 +14,65 @@ function getSortIcon(currentKey, key, state) {
   return `<i class="fa-solid fa-sort-down"></i>`; // DESC
 }
 
+// Mobile detection and touch handling
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+}
+
+// Improve mobile scrolling experience
+function optimizeTableScroll() {
+  const tableWrap = document.querySelector('.table-wrap');
+  if (tableWrap && isMobileDevice()) {
+    // Add momentum scrolling for iOS
+    tableWrap.style.webkitOverflowScrolling = 'touch';
+
+    // Show/hide scroll indicators
+    let scrollTimeout;
+    tableWrap.addEventListener('scroll', function() {
+      this.style.scrollbarColor = '#ffd25a #151821';
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        this.style.scrollbarColor = 'transparent transparent';
+      }, 1500);
+    });
+  }
+}
+
+// Handle orientation changes
+function handleOrientationChange() {
+  if (isMobileDevice()) {
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      renderMain();
+      optimizeTableScroll();
+    }, 100);
+  }
+}
+
+// Add touch feedback for better mobile interaction
+function addTouchFeedback() {
+  if (!isMobileDevice()) return;
+
+  document.addEventListener('touchstart', function(e) {
+    const target = e.target.closest('.game-btn, .player-btn, th[onclick]');
+    if (target) {
+      target.style.transform = 'scale(0.98)';
+      target.style.transition = 'transform 0.1s ease';
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    const target = e.target.closest('.game-btn, .player-btn, th[onclick]');
+    if (target) {
+      setTimeout(() => {
+        target.style.transform = '';
+        target.style.transition = '';
+      }, 100);
+    }
+  }, { passive: true });
+}
+
+
 
 
 
@@ -202,6 +261,32 @@ function moneyClass(v) {
 }
 
 /* -------------------------
+   STATISTICS HEADER
+--------------------------*/
+function renderStatsHeader() {
+  const statsDiv = document.getElementById("statsHeader");
+  
+  // Calculate total games and total buy-ins
+  const totalGames = games.size;
+  let totalBuyIns = 0;
+  
+  Object.values(players).forEach(player => {
+    totalBuyIns += player.lifetimeBuy;
+  });
+  
+  statsDiv.innerHTML = `
+    <div class="stat">
+      Total Games:
+      <span class="stat-value">${totalGames}</span>
+    </div>
+    <div class="stat">
+      Total Buy-Ins:
+      <span class="stat-value">${fmt(totalBuyIns)}</span>
+    </div>
+  `;
+}
+
+/* -------------------------
    MAIN TABLE
 --------------------------*/
 function renderMain() {
@@ -216,12 +301,32 @@ function renderMain() {
     rows = sortRows(rows, sortState.key);
   }
 
-  table.innerHTML = `
+  // Mobile-optimized header rendering
+  const isMobile = isMobileDevice();
+  const headerHTML = isMobile ? `
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th onclick="sortMain('name')" style="touch-action: manipulation;">
+          Player Name ${getSortIcon(sortState.key, 'name', sortState)}
+        </th>
+        <th onclick="sortMain('total')" style="touch-action: manipulation;">
+          Winnings ${getSortIcon(sortState.key, 'total', sortState)}
+        </th>
+        <th onclick="sortMain('gamesPlayed')" style="touch-action: manipulation;">
+          Games ${getSortIcon(sortState.key, 'gamesPlayed', sortState)}
+        </th>
+        <th onclick="sortMain('streak')" style="touch-action: manipulation;">
+          Streak ${getSortIcon(sortState.key, 'streak', sortState)}
+        </th>
+      </tr>
+    </thead>
+  ` : `
     <thead>
       <tr>
         <th>Rank</th>
         <th onclick="sortMain('name')">
-          Player ${getSortIcon(sortState.key, 'name', sortState)}
+          Player Name ${getSortIcon(sortState.key, 'name', sortState)}
         </th>
         <th onclick="sortMain('total')">
           Total Winnings ${getSortIcon(sortState.key, 'total', sortState)}
@@ -238,7 +343,9 @@ function renderMain() {
       </tr>
     </thead>
   `;
-  
+
+  table.innerHTML = headerHTML;
+
   const tbody = document.createElement("tbody");
 
   rows.forEach((p, i) => {
@@ -255,7 +362,31 @@ function renderMain() {
 
     const tr = document.createElement("tr");
 
-    tr.innerHTML = `
+    // Mobile-optimized row rendering
+    const rowHTML = isMobile ? `
+      <td>${i + 1}</td>
+
+      <td class="name-cell">
+        <span class="player-name">${p.name}</span>
+        <div class="player-btn ${activePlayer===p.name?'active':''}"
+             onclick="togglePlayer('${p.name}')"
+             style="touch-action: manipulation;">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+      </td>
+
+      <td class="${moneyClass(p.total)}">
+        ${fmt(p.total)}
+      </td>
+      <td>${p.gamesPlayed}</td>
+
+      <td class="streak-cell ${cls}">
+        <span class="streak-icon-wrap">${icon}</span>
+        <span class="streak-text">
+          ${isWin ? "W" : "L"}${s.max}
+        </span>
+      </td>
+    ` : `
       <td>${i + 1}</td>
 
       <td class="name-cell">
@@ -280,16 +411,21 @@ function renderMain() {
       </td>
     `;
 
+    tr.innerHTML = rowHTML;
+
     tbody.appendChild(tr);
   });
 
   table.appendChild(tbody);
+
+  // Optimize mobile scrolling after render
+  setTimeout(optimizeTableScroll, 100);
 }
 
 function toggleGame(game) {
   if (activeGame === game) {
     activeGame = null;
-    document.getElementById("detailsPanel").innerHTML = "";
+    hideDetailsPanel();
   } else {
     activeGame = game;
     activePlayer = null;
@@ -304,7 +440,7 @@ function toggleGame(game) {
 function togglePlayer(name) {
   if (activePlayer === name) {
     activePlayer = null;
-    document.getElementById("detailsPanel").innerHTML = "";
+    hideDetailsPanel();
   } else {
     activePlayer = name;
     activeGame = null;
@@ -313,6 +449,36 @@ function togglePlayer(name) {
 
   renderMain();
   renderGames();
+}
+
+/* -------------------------
+   MODAL FUNCTIONS
+--------------------------*/
+function hideDetailsPanel() {
+  const panel = document.getElementById("detailsPanel");
+  if (isMobileDevice()) {
+    panel.style.display = "none";
+    panel.innerHTML = "";
+    document.body.style.overflow = "auto";
+  } else {
+    panel.innerHTML = "";
+  }
+}
+
+function showDetailsPanel(content) {
+  const panel = document.getElementById("detailsPanel");
+  if (isMobileDevice()) {
+    panel.innerHTML = `
+      <div class="modal-content">
+        <button class="close-btn" onclick="hideDetailsPanel()">×</button>
+        ${content}
+      </div>
+    `;
+    panel.style.display = "block";
+    document.body.style.overflow = "hidden";
+  } else {
+    panel.innerHTML = content;
+  }
 }
 
 /* -------------------------
@@ -327,6 +493,11 @@ function renderGames() {
 
     btn.className = "game-btn" + (activeGame === g ? " active" : "");
     btn.textContent = "Game " + g;
+
+    // Add mobile-specific attributes
+    if (isMobileDevice()) {
+      btn.style.touchAction = 'manipulation';
+    }
 
     btn.onclick = () => toggleGame(g);
 
@@ -355,41 +526,45 @@ function renderPlayerTable(name) {
 
   const rows = sortDetail(playerDetailRows, detailSort.key);
 
-  document.getElementById("detailsPanel").innerHTML = `
+  const content = `
     <h2>${name} - Player Breakdown</h2>
 
     <p><b>Total:</b> ${fmt(p.total)}</p>
 
-    <table>
-      <thead>
-        <tr>
-          <th onclick="renderPlayerSorted('game')">
-            Game ${getSortIcon(detailSort.key, 'game', detailSort)}
-          </th>
-          <th onclick="renderPlayerSorted('buy')">
-            Buy In ${getSortIcon(detailSort.key, 'buy', detailSort)}
-          </th>
-          <th onclick="renderPlayerSorted('pay')">
-            Pay Out ${getSortIcon(detailSort.key, 'pay', detailSort)}
-          </th>
-          <th onclick="renderPlayerSorted('win')">
-            Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
-          </th>
-        </tr>
-      </thead>
-
-      <tbody>
-        ${rows.map(r => `
+    <div class="table-wrap">
+      <table>
+        <thead>
           <tr>
-            <td>${r.game}</td>
-            <td class="buy">${fmt(r.buy)}</td>
-            <td class="pay">${fmt(r.pay)}</td>
-            <td class="${r.win >= 0 ? 'win' : 'loss'}">${fmt(r.win)}</td>
+            <th onclick="renderPlayerSorted('game')">
+              Game ${getSortIcon(detailSort.key, 'game', detailSort)}
+            </th>
+            <th onclick="renderPlayerSorted('buy')">
+              Buy In ${getSortIcon(detailSort.key, 'buy', detailSort)}
+            </th>
+            <th onclick="renderPlayerSorted('pay')">
+              Pay Out ${getSortIcon(detailSort.key, 'pay', detailSort)}
+            </th>
+            <th onclick="renderPlayerSorted('win')">
+              Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
+            </th>
           </tr>
-        `).join("")}
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td>${r.game}</td>
+              <td class="buy">${fmt(r.buy)}</td>
+              <td class="pay">${fmt(r.pay)}</td>
+              <td class="${r.win >= 0 ? 'win' : 'loss'}">${fmt(r.win)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
   `;
+
+  showDetailsPanel(content);
 }
 
 
@@ -425,39 +600,43 @@ window.renderGameSorted = function (key) {
 function renderGameTable(game) {
   const rows = sortDetail(gameDetailRows, detailSort.key);
 
-  document.getElementById("detailsPanel").innerHTML = `
+  const content = `
     <h2>Game ${game} - Game Breakdown</h2>
 
-    <table>
-      <thead>
-        <tr>
-          <th onclick="renderGameSorted('player')">
-            Player ${getSortIcon(detailSort.key, 'player', detailSort)}
-          </th>
-          <th onclick="renderGameSorted('buy')">
-            Buy In ${getSortIcon(detailSort.key, 'buy', detailSort)}
-          </th>
-          <th onclick="renderGameSorted('pay')">
-            Pay Out ${getSortIcon(detailSort.key, 'pay', detailSort)}
-          </th>
-          <th onclick="renderGameSorted('win')">
-            Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
-          </th>
-        </tr>
-      </thead>
-
-      <tbody>
-        ${rows.map(r => `
+    <div class="table-wrap">
+      <table>
+        <thead>
           <tr>
-            <td>${r.player}</td>
-            <td class="buy">${fmt(r.buy)}</td>
-            <td class="pay">${fmt(r.pay)}</td>
-            <td class="${r.win >= 0 ? 'win' : 'loss'}">${fmt(r.win)}</td>
+            <th onclick="renderGameSorted('player')">
+              Player ${getSortIcon(detailSort.key, 'player', detailSort)}
+            </th>
+            <th onclick="renderGameSorted('buy')">
+              Buy In ${getSortIcon(detailSort.key, 'buy', detailSort)}
+            </th>
+            <th onclick="renderGameSorted('pay')">
+              Pay Out ${getSortIcon(detailSort.key, 'pay', detailSort)}
+            </th>
+            <th onclick="renderGameSorted('win')">
+              Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
+            </th>
           </tr>
-        `).join("")}
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td>${r.player}</td>
+              <td class="buy">${fmt(r.buy)}</td>
+              <td class="pay">${fmt(r.pay)}</td>
+              <td class="${r.win >= 0 ? 'win' : 'loss'}">${fmt(r.win)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
   `;
+
+  showDetailsPanel(content);
 }
 
 function showGame(game) {
@@ -469,6 +648,10 @@ function showGame(game) {
       pay: money(r["Pay Out"]),
       win: money(r["Pay Out"]) - money(r["Buy In"])
     }));
+
+  // Auto-sort by winnings DESC on initial display
+  detailSort.key = 'win';
+  detailSort.dir = -1;
 
   renderGameTable(game);
 }
@@ -483,7 +666,28 @@ Papa.parse(SHEET_URL, {
   complete: res => {
     raw = res.data;
     build(raw);
+    renderStatsHeader();
     renderMain();
     renderGames();
+
+    // Initialize mobile enhancements
+    if (isMobileDevice()) {
+      addTouchFeedback();
+      optimizeTableScroll();
+
+      // Handle orientation changes
+      window.addEventListener('orientationchange', handleOrientationChange);
+      window.addEventListener('resize', handleOrientationChange);
+
+      // Prevent zoom on double tap for better UX
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', function (event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, false);
+    }
   }
 });
