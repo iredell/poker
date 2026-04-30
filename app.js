@@ -491,7 +491,7 @@ function renderPlayerTable(name) {
   const rows = sortDetail(playerDetailRows, detailSort.key, p.history);
 
   const isMobile = isMobileDevice();
-  const headerText = isMobile ? `${name}<br><span class="breakdown-subtitle">Player Breakdown</span>` : `${name} - Player Breakdown`;
+  const headerText = isMobile ? `<span class="breakdown-primary">${name.toUpperCase()}</span><br><span class="breakdown-subtitle">Player Breakdown</span>` : `${name.toUpperCase()} - Player Breakdown`;
   
   const streak = calcStreaks(p.history);
   const streakText = streak.type === "W" ? `W${streak.max}` : streak.type === "L" ? `L${streak.max}` : "No streak";
@@ -499,23 +499,23 @@ function renderPlayerTable(name) {
   const winningsClass = p.total > 0 ? 'win' : p.total < 0 ? 'loss' : 'neutral';
   
   const streakIcon = streak.type === "W" ? '<i class="fa-solid fa-fire streak-icon hot"></i>' : streak.type === "L" ? '<i class="fa-solid fa-snowflake streak-icon cold"></i>' : '<i class="fa-solid fa-minus"></i>';
-  const streakColorClass = streak.type === "W" ? 'win' : streak.type === "L" ? 'loss' : 'neutral';
+  const streakColorClass = streak.type === "W" ? 'streak-hot' : streak.type === "L" ? 'streak-cold' : 'streak-neutral';
   
   const content = `
     <h2>${headerText}</h2>
 
     <div class="player-stats-bar">
       <div class="stat">
-        <span class="stat-name">Winnings</span><span class="stat-colon">:</span><span class="stat-value ${winningsClass}">${fmt(p.total)}</span>
+        <span class="stat-name">Games Played</span><span class="stat-colon">:</span><span class="stat-value">${p.gamesPlayed}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-name">Streak</span><span class="stat-colon">:</span><span class="stat-value ${streakColorClass}">${streakIcon} ${streakText}</span>
       </div>
       <div class="stat">
         <span class="stat-name">Lifetime Buy-In</span><span class="stat-colon">:</span><span class="stat-value buy">${fmt(p.lifetimeBuy)}</span>
       </div>
       <div class="stat">
-        <span class="stat-name">Games Played</span><span class="stat-colon">:</span><span class="stat-value">${p.gamesPlayed}</span>
-      </div>
-      <div class="stat">
-        <span class="stat-name">Streak ${streakIcon}</span><span class="stat-colon">:</span><span class="stat-value ${streakColorClass}">${streakText}</span>
+        <span class="stat-name">Winnings</span><span class="stat-colon">:</span><span class="stat-value ${winningsClass}">${fmt(p.total)}</span>
       </div>
     </div>
 
@@ -527,10 +527,10 @@ function renderPlayerTable(name) {
               ${isMobile ? 'G' : 'Game'} ${getSortIcon(detailSort.key, 'game', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('buy')">
-              BuyIn ${getSortIcon(detailSort.key, 'buy', detailSort)}
+              ${isMobile ? 'In' : 'BuyIn'} ${getSortIcon(detailSort.key, 'buy', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('pay')">
-              PayOut ${getSortIcon(detailSort.key, 'pay', detailSort)}
+              ${isMobile ? 'Out' : 'PayOut'} ${getSortIcon(detailSort.key, 'pay', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('win')">
               Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
@@ -615,7 +615,7 @@ function renderGameTable(game) {
   const rows = sortDetail(gameDetailRows, detailSort.key);
 
   const isMobile = isMobileDevice();
-  const headerText = isMobile ? `Game ${game}<br><span class="breakdown-subtitle">Game Breakdown</span>` : `Game ${game} - Game Breakdown`;
+  const headerText = isMobile ? `<span class="breakdown-primary">GAME ${game}</span><br><span class="breakdown-subtitle">Game Breakdown</span>` : `GAME ${game} - Game Breakdown`;
   
   // Calculate game stats
   const totalPlayers = gameDetailRows.length;
@@ -645,10 +645,10 @@ function renderGameTable(game) {
               Player ${getSortIcon(detailSort.key, 'player', detailSort)}
             </th>
             <th onclick="renderGameSorted('buy')">
-              BuyIn ${getSortIcon(detailSort.key, 'buy', detailSort)}
+              ${isMobile ? 'In' : 'BuyIn'} ${getSortIcon(detailSort.key, 'buy', detailSort)}
             </th>
             <th onclick="renderGameSorted('pay')">
-              PayOut ${getSortIcon(detailSort.key, 'pay', detailSort)}
+              ${isMobile ? 'Out' : 'PayOut'} ${getSortIcon(detailSort.key, 'pay', detailSort)}
             </th>
             <th onclick="renderGameSorted('win')">
               Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
