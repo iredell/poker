@@ -506,16 +506,16 @@ function renderPlayerTable(name) {
 
     <div class="player-stats-bar">
       <div class="stat">
-        <span class="stat-name">Winnings</span>:<span class="stat-value ${winningsClass}">${fmt(p.total)}</span>
+        <span class="stat-name">Winnings</span><span class="stat-colon">:</span><span class="stat-value ${winningsClass}">${fmt(p.total)}</span>
       </div>
       <div class="stat">
-        <span class="stat-name">Lifetime Buy-In</span>:<span class="stat-value buy">${fmt(p.lifetimeBuy)}</span>
+        <span class="stat-name">Lifetime Buy-In</span><span class="stat-colon">:</span><span class="stat-value buy">${fmt(p.lifetimeBuy)}</span>
       </div>
       <div class="stat">
-        <span class="stat-name">Games Played</span>:<span class="stat-value">${p.gamesPlayed}</span>
+        <span class="stat-name">Games Played</span><span class="stat-colon">:</span><span class="stat-value">${p.gamesPlayed}</span>
       </div>
       <div class="stat">
-        <span class="stat-name">${streakIcon} Streak</span>:<span class="stat-value ${streakColorClass}">${streakText}</span>
+        <span class="stat-name">${streakIcon} Streak</span><span class="stat-colon">:</span><span class="stat-value ${streakColorClass}">${streakText}</span>
       </div>
     </div>
 
@@ -524,7 +524,7 @@ function renderPlayerTable(name) {
         <thead>
           <tr>
             <th onclick="renderPlayerSorted('game')">
-              Game ${getSortIcon(detailSort.key, 'game', detailSort)}
+              ${isMobile ? 'G' : 'Game'} ${getSortIcon(detailSort.key, 'game', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('buy')">
               Buy In ${getSortIcon(detailSort.key, 'buy', detailSort)}
@@ -536,7 +536,7 @@ function renderPlayerTable(name) {
               Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('streak')">
-              Streak ${getSortIcon(detailSort.key, 'streak', detailSort)}
+              ${isMobile ? 'STK' : 'Streak'} ${getSortIcon(detailSort.key, 'streak', detailSort)}
             </th>
           </tr>
         </thead>
@@ -623,13 +623,13 @@ function renderGameTable(game) {
 
     <div class="player-stats-bar">
       <div class="stat">
-        <span class="stat-name">Total Players</span>:<span class="stat-value">${totalPlayers}</span>
+        <span class="stat-name">Total Players</span><span class="stat-colon">:</span><span class="stat-value">${totalPlayers}</span>
       </div>
       <div class="stat">
-        <span class="stat-name">Total Buy-In</span>:<span class="stat-value buy">${fmt(totalBuyIn)}</span>
+        <span class="stat-name">Total Buy-In</span><span class="stat-colon">:</span><span class="stat-value buy">${fmt(totalBuyIn)}</span>
       </div>
       <div class="stat">
-        <span class="stat-name">Winner</span>:<span class="stat-value win">${winner.player}</span>
+        <span class="stat-name">Winner</span><span class="stat-colon">:</span><span class="stat-value win">${winner.player}</span>
       </div>
     </div>
 
