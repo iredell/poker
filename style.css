@@ -123,6 +123,11 @@ table {
   margin: 0 auto;
 }
 
+/* Remove border radius from breakdown tables since container has it */
+#detailsPanel table {
+  border-radius: 0;
+}
+
 th {
   background: #2a3441;
   padding: 10px;
@@ -411,46 +416,80 @@ td:first-child {
   font-weight: 900;
 }
 
-
-#detailsPanel td:first-child {
+#detailsPanel .table-wrap table td:first-child {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-#detailsPanel th:nth-child(1),
-#detailsPanel td:nth-child(1) {
+#detailsPanel .table-wrap table th:nth-child(1),
+#detailsPanel .table-wrap table td:nth-child(1) {
   width: 30%;
 }
 
-#detailsPanel th:nth-child(2),
-#detailsPanel td:nth-child(2),
-#detailsPanel th:nth-child(3),
-#detailsPanel td:nth-child(3) {
+#detailsPanel .table-wrap table th:nth-child(2),
+#detailsPanel .table-wrap table td:nth-child(2),
+#detailsPanel .table-wrap table th:nth-child(3),
+#detailsPanel .table-wrap table td:nth-child(3) {
   width: 20%;
 }
 
-#detailsPanel th:nth-child(4),
-#detailsPanel td:nth-child(4) {
+#detailsPanel .table-wrap table th:nth-child(4),
+#detailsPanel .table-wrap table td:nth-child(4) {
   width: 30%;
 }
+
+
+
+
+
+
 
 #detailsPanel {
   overflow-x: auto;
 }
 
-#detailsPanel table {
-  min-width: 700px;
-  margin: 0 auto;
+#detailsPanel .table-wrap {
   border: 1px solid #2a3441;
   border-radius: 8px;
   overflow: hidden;
 }
 
+#detailsPanel table {
+  min-width: 700px;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  width: 100%;
+  border-collapse: collapse;
+}
+
 /* Center breakdown table headers */
 #detailsPanel th {
   text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+#detailsPanel th:last-child {
+  border-right: none;
+}
+
+#detailsPanel td {
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+#detailsPanel td:last-child {
+  border-right: none;
+}
+
+#detailsPanel tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
 
 /* Breakdown table streak column */
 #detailsPanel .streak-cell {
@@ -784,9 +823,12 @@ button {
   }
 
   /* Mobile breakdown table adjustments */
+
   #detailsPanel table {
     min-width: 100%;
     font-size: 12px;
+    border: none;
+    border-radius: 0;
   }
 
   #detailsPanel .streak-cell {
