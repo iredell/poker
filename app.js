@@ -308,7 +308,7 @@ function renderMain() {
       <tr>
         <th>Rank</th>
         <th onclick="sortMain('name')" style="touch-action: manipulation;">
-          Player Name ${getSortIcon(sortState.key, 'name', sortState)}
+          Player ${getSortIcon(sortState.key, 'name', sortState)}
         </th>
         <th onclick="sortMain('total')" style="touch-action: manipulation;">
           Winnings ${getSortIcon(sortState.key, 'total', sortState)}
@@ -526,10 +526,31 @@ function renderPlayerTable(name) {
 
   const rows = sortDetail(playerDetailRows, detailSort.key);
 
+  const isMobile = isMobileDevice();
+  const headerText = isMobile ? `${name}<br>Player Breakdown` : `${name} - Player Breakdown`;
+  
+  const streak = calcStreaks(p.history);
+  const streakText = streak.type === "W" ? `W${streak.max}` : streak.type === "L" ? `L${streak.max}` : "No streak";
+  
+  const winningsClass = p.total > 0 ? 'win' : p.total < 0 ? 'loss' : 'neutral';
+  
   const content = `
-    <h2>${name} - Player Breakdown</h2>
+    <h2>${headerText}</h2>
 
-    <p><b>Total:</b> ${fmt(p.total)}</p>
+    <div class="player-stats-bar">
+      <div class="stat">
+        Winnings: <span class="stat-value ${winningsClass}">${fmt(p.total)}</span>
+      </div>
+      <div class="stat">
+        Lifetime Buy-In: <span class="stat-value">${fmt(p.lifetimeBuy)}</span>
+      </div>
+      <div class="stat">
+        Games Played: <span class="stat-value">${p.gamesPlayed}</span>
+      </div>
+      <div class="stat">
+        Streak: <span class="stat-value">${streakText}</span>
+      </div>
+    </div>
 
     <div class="table-wrap">
       <table>
@@ -600,8 +621,11 @@ window.renderGameSorted = function (key) {
 function renderGameTable(game) {
   const rows = sortDetail(gameDetailRows, detailSort.key);
 
+  const isMobile = isMobileDevice();
+  const headerText = isMobile ? `Game ${game}<br>Game Breakdown` : `Game ${game} - Game Breakdown`;
+  
   const content = `
-    <h2>Game ${game} - Game Breakdown</h2>
+    <h2>${headerText}</h2>
 
     <div class="table-wrap">
       <table>
