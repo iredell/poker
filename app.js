@@ -31,6 +31,7 @@ let games = new Set();
 
 let activeGame = null;
 let activePlayer = null;
+let showActiveOnly = false;
 
 let detailSort = {
   key: null,
@@ -52,7 +53,7 @@ function sortDetail(rows, key, playerHistory = null) {
 
   return [...rows].sort((a, b) => {
     let A, B;
-    
+
     if (key === "streak" && playerHistory) {
       const indexA = rows.indexOf(a);
       const indexB = rows.indexOf(b);
@@ -232,15 +233,15 @@ function moneyClass(v) {
 --------------------------*/
 function renderStatsHeader() {
   const statsDiv = document.getElementById("statsHeader");
-  
+
   // Calculate total games and total buy-ins
   const totalGames = games.size;
   let totalBuyIns = 0;
-  
+
   Object.values(players).forEach(player => {
     totalBuyIns += player.lifetimeBuy;
   });
-  
+
   statsDiv.innerHTML = `
     <div class="stat">
       Total Games:
@@ -254,12 +255,40 @@ function renderStatsHeader() {
 }
 
 /* -------------------------
+   ACTIVE/ALL TOGGLE
+--------------------------*/
+window.toggleActiveFilter = function() {
+  showActiveOnly = !showActiveOnly;
+  renderMain();
+  renderActiveToggle();
+};
+
+function renderActiveToggle() {
+  const activeToggle = document.getElementById('activeToggle');
+
+  activeToggle.innerHTML = `
+    <div class="active-toggle-container">
+      <div class="toggle-label left">All Players</div>
+      <div class="toggle-switch" onclick="toggleActiveFilter()">
+        <div class="toggle-slider ${showActiveOnly ? 'active' : ''}"></div>
+      </div>
+      <div class="toggle-label right">Repeat Players</div>
+    </div>
+  `;
+}
+
+/* -------------------------
    MAIN TABLE
 --------------------------*/
 function renderMain() {
   const table = document.getElementById("mainTable");
 
   let rows = Object.values(players);
+
+  // Filter active players if needed
+  if (showActiveOnly) {
+    rows = rows.filter(player => player.gamesPlayed > 1);
+  }
 
   // default ordering = winnings desc
   if (!sortState.key) {
@@ -324,21 +353,29 @@ function renderMain() {
       ? `streak-win-${Math.min(s.max,5)}`
       : `streak-loss-${Math.min(s.max,5)}`;
 
-    // Calculate true rank based on winnings (1-based)
-    const allPlayersByWinnings = Object.values(players).sort((a, b) => b.total - a.total);
-    const trueRank = allPlayersByWinnings.findIndex(player => player.name === p.name) + 1;
+    // Calculate true rank based on winnings and current filter (1-based)
+    let rankingPlayers = Object.values(players);
+    if (showActiveOnly) {
+      rankingPlayers = rankingPlayers.filter(player => player.gamesPlayed > 1);
+    }
+    rankingPlayers.sort((a, b) => b.total - a.total);
+    const trueRank = rankingPlayers.findIndex(player => player.name === p.name) + 1;
+
+    // Check if player is inactive (for styling)
+    const isInactive = p.gamesPlayed <= 1;
+    const rowClass = isInactive && !showActiveOnly ? 'inactive-player' : '';
 
     const tr = document.createElement("tr");
 
     // Mobile-optimized row rendering
     const streakArrow = s.type === 'W' ? '<i class="fa-solid fa-arrow-up mobile-streak-hot"></i>' : s.type === 'L' ? '<i class="fa-solid fa-arrow-down mobile-streak-cold"></i>' : '';
-    
+
     const rowHTML = isMobile ? `
       <td>${trueRank === 1 ? '<i class="fa-solid fa-trophy" style="color: #ffd25a;"></i>' : trueRank}</td>
 
       <td class="name-cell">
         <div class="player-btn ${activePlayer===p.name?'active':''}"
-             onclick="togglePlayer('${p.name}')" 
+             onclick="togglePlayer('${p.name}')"
              style="touch-action: manipulation;">
           <i class="fa-solid fa-chart-line"></i>
         </div>
@@ -374,6 +411,10 @@ function renderMain() {
         </span>
       </td>
     `;
+
+    if (rowClass) {
+      tr.className = rowClass;
+    }
 
     tr.innerHTML = rowHTML;
 
@@ -489,15 +530,15 @@ function renderPlayerTable(name) {
 
   const isMobile = isMobileDevice();
   const headerText = isMobile ? `<span class="breakdown-primary">${name.toUpperCase()}</span><br><span class="breakdown-subtitle">Player Stats</span>` : `${name.toUpperCase()} - Player Stats`;
-  
+
   const streak = calcStreaks(p.history);
   const streakText = streak.type === "W" ? `W${streak.max}` : streak.type === "L" ? `L${streak.max}` : "No streak";
-  
+
   const winningsClass = p.total > 0 ? 'win' : p.total < 0 ? 'loss' : 'neutral';
-  
+
   const streakIcon = streak.type === "W" ? '<i class="fa-solid fa-fire streak-icon hot"></i>' : streak.type === "L" ? '<i class="fa-solid fa-snowflake streak-icon cold"></i>' : '<i class="fa-solid fa-minus"></i>';
   const streakColorClass = streak.type === "W" ? 'streak-hot' : streak.type === "L" ? 'streak-cold' : 'streak-neutral';
-  
+
   const content = `
     <h2>${headerText}</h2>
 
@@ -544,14 +585,14 @@ function renderPlayerTable(name) {
             const historyUpToGame = p.history.slice(0, index + 1);
             const gameStreak = calcStreaks(historyUpToGame);
             const isWin = gameStreak.type === "W";
-            const streakIcon = isWin 
-              ? `<i class="fa-solid fa-fire streak-icon hot"></i>` 
+            const streakIcon = isWin
+              ? `<i class="fa-solid fa-fire streak-icon hot"></i>`
               : `<i class="fa-solid fa-snowflake streak-icon cold"></i>`;
-            const streakClass = isWin 
-              ? `streak-win-${Math.min(gameStreak.max, 5)}` 
+            const streakClass = isWin
+              ? `streak-win-${Math.min(gameStreak.max, 5)}`
               : `streak-loss-${Math.min(gameStreak.max, 5)}`;
             const streakText = gameStreak.type ? `${gameStreak.type}${gameStreak.max}` : "-";
-            
+
             return `
               <tr>
                 <td>${r.game}</td>
@@ -613,12 +654,12 @@ function renderGameTable(game) {
 
   const isMobile = isMobileDevice();
   const headerText = isMobile ? `<span class="breakdown-primary">GAME ${game}</span><br><span class="breakdown-subtitle">Game Stats</span>` : `GAME ${game} - Game Stats`;
-  
+
   // Calculate game stats
   const totalPlayers = gameDetailRows.length;
   const totalBuyIn = gameDetailRows.reduce((sum, row) => sum + row.buy, 0);
   const winner = gameDetailRows.reduce((prev, current) => (current.win > prev.win) ? current : prev);
-  
+
   const content = `
     <h2>${headerText}</h2>
 
@@ -700,6 +741,7 @@ Papa.parse(SHEET_URL, {
     renderStatsHeader();
     renderMain();
     renderGames();
+    renderActiveToggle();
 
   }
 });
