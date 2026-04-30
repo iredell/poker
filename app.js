@@ -108,12 +108,27 @@ function money(v) {
    STREAK (NOW WITH SORT VALUE)
 --------------------------*/
 function calcStreaks(history) {
+  // If no history (only future games), return no streak
+  if (!history || history.length === 0) {
+    return {
+      type: null,
+      max: 0,
+      value: 0
+    };
+  }
+
   let streak = 0;
   let type = null;
 
   for (let v of history) {
     const t = v > 0 ? "W" : v < 0 ? "L" : "N";
-    if (t === "N") continue;
+    
+    // If neutral ($0), reset the streak
+    if (t === "N") {
+      streak = 0;
+      type = null;
+      continue;
+    }
 
     if (t === type) {
       streak++;
@@ -126,7 +141,7 @@ function calcStreaks(history) {
   return {
     type,
     max: streak,
-    value: type === "W" ? streak : -streak
+    value: type === "W" ? streak : type === "L" ? -streak : 0
   };
 }
 
@@ -140,6 +155,7 @@ function build(data) {
   data.forEach(r => {
     const game = r["Game No."];
     const player = r.Player;
+    const isFuture = r.Future && r.Future.toLowerCase() === "yes";
 
     const buy = money(r["Buy In"]);
     const pay = money(r["Pay Out"]);
@@ -159,12 +175,16 @@ function build(data) {
       };
     }
 
-    // NOW safe to update
-    players[player].total += win;
-    players[player].gamesPlayed++;
-    players[player].history.push(win);
-    players[player].perGame[game] = { buy, pay, win };
-    players[player].lifetimeBuy += buy;
+    // Include all games in perGame for display purposes
+    players[player].perGame[game] = { buy, pay, win, isFuture };
+
+    // Only update totals and history for non-future games
+    if (!isFuture) {
+      players[player].total += win;
+      players[player].gamesPlayed++;
+      players[player].history.push(win);
+      players[player].lifetimeBuy += buy;
+    }
   });
 }
 
@@ -344,14 +364,19 @@ function renderMain() {
   rows.forEach((p, i) => {
     const s = calcStreaks(p.history);
     const isWin = s.type === "W";
+    const isLoss = s.type === "L";
 
     const icon = isWin
       ? `<i class="fa-solid fa-fire streak-icon hot"></i>`
-      : `<i class="fa-solid fa-snowflake streak-icon cold"></i>`;
+      : isLoss
+      ? `<i class="fa-solid fa-snowflake streak-icon cold"></i>`
+      : `<i class="fa-solid fa-minus"></i>`;
 
     const cls = isWin
       ? `streak-win-${Math.min(s.max,5)}`
-      : `streak-loss-${Math.min(s.max,5)}`;
+      : isLoss
+      ? `streak-loss-${Math.min(s.max,5)}`
+      : `streak-neutral`;
 
     // Calculate true rank based on winnings and current filter (1-based)
     let rankingPlayers = Object.values(players);
@@ -374,7 +399,7 @@ function renderMain() {
     
     let streakArrow = '';
     if (!hasPlayedRecentTwoGames && allGameNumbers.length >= 2) {
-      streakArrow = '<i class="fa-solid fa-minus mobile-streak-inactive"></i>';
+      streakArrow = '<span class="mobile-streak-inactive">💤</span>';
     } else {
       streakArrow = s.type === 'W' ? '<i class="fa-solid fa-arrow-up mobile-streak-hot"></i>' : s.type === 'L' ? '<i class="fa-solid fa-arrow-down mobile-streak-cold"></i>' : '';
     }
@@ -416,7 +441,7 @@ function renderMain() {
       <td class="streak-cell ${cls}">
         <span class="streak-icon-wrap">${icon}</span>
         <span class="streak-text">
-          ${isWin ? "W" : "L"}${s.max}
+          ${s.type ? `${s.type}${s.max}` : ""}
         </span>
       </td>
     `;
@@ -590,20 +615,31 @@ function renderPlayerTable(name) {
 
         <tbody>
           ${rows.map((r, index) => {
-            // Calculate streak up to this game
-            const historyUpToGame = p.history.slice(0, index + 1);
-            const gameStreak = calcStreaks(historyUpToGame);
-            const isWin = gameStreak.type === "W";
-            const streakIcon = isWin
-              ? `<i class="fa-solid fa-fire streak-icon hot"></i>`
-              : `<i class="fa-solid fa-snowflake streak-icon cold"></i>`;
-            const streakClass = isWin
-              ? `streak-win-${Math.min(gameStreak.max, 5)}`
-              : `streak-loss-${Math.min(gameStreak.max, 5)}`;
-            const streakText = gameStreak.type ? `${gameStreak.type}${gameStreak.max}` : "-";
-
+            let streakIcon, streakClass, streakText;
+            
+            if (r.isFuture) {
+              // Future games show no streak
+              streakIcon = `<i class="fa-solid fa-clock"></i>`;
+              streakClass = 'streak-future';
+              streakText = 'TBD';
+            } else {
+              // Calculate streak up to this game (excluding future games)
+              const nonFutureHistory = p.history; // Already filtered in build()
+              const gameIndex = nonFutureHistory.indexOf(r.win);
+              const historyUpToGame = gameIndex >= 0 ? nonFutureHistory.slice(0, gameIndex + 1) : [];
+              const gameStreak = calcStreaks(historyUpToGame);
+              const isWin = gameStreak.type === "W";
+              streakIcon = isWin 
+                ? `<i class="fa-solid fa-fire streak-icon hot"></i>` 
+                : `<i class="fa-solid fa-snowflake streak-icon cold"></i>`;
+              streakClass = isWin 
+                ? `streak-win-${Math.min(gameStreak.max, 5)}` 
+                : `streak-loss-${Math.min(gameStreak.max, 5)}`;
+              streakText = gameStreak.type ? `${gameStreak.type}${gameStreak.max}` : "-";
+            }
+            
             return `
-              <tr>
+              <tr ${r.isFuture ? 'class="future-game"' : ''}>
                 <td>${r.game}</td>
                 <td class="buy">${fmt(r.buy)}</td>
                 <td class="pay">${fmt(r.pay)}</td>
@@ -632,6 +668,7 @@ function showPlayer(name) {
     buy: v.buy,
     pay: v.pay,
     win: v.win,
+    isFuture: v.isFuture || false,
     streak: 0 // Will be calculated in render
   }));
 
@@ -667,7 +704,11 @@ function renderGameTable(game) {
   // Calculate game stats
   const totalPlayers = gameDetailRows.length;
   const totalBuyIn = gameDetailRows.reduce((sum, row) => sum + row.buy, 0);
-  const winner = gameDetailRows.reduce((prev, current) => (current.win > prev.win) ? current : prev);
+  
+  // Check raw data directly for future game detection
+  const rawGameData = raw.filter(r => r["Game No."] == game);
+  const isFutureGame = rawGameData.length > 0 && rawGameData.every(r => r.Future && r.Future.toLowerCase() === "yes");
+  const winner = isFutureGame ? { player: "TBD" } : gameDetailRows.reduce((prev, current) => (current.win > prev.win) ? current : prev);
 
   const content = `
     <h2>${headerText}</h2>
@@ -680,7 +721,7 @@ function renderGameTable(game) {
         <span class="stat-name">Pot</span><span class="stat-colon">:</span><span class="stat-value buy">${fmt(totalBuyIn)}</span>
       </div>
       <div class="stat">
-        <span class="stat-name">Chip Leader</span><span class="stat-colon">:</span><span class="stat-value win">${winner.player}</span>
+        <span class="stat-name">Chip Leader</span><span class="stat-colon">:</span><span class="stat-value ${isFutureGame ? '' : 'win'}">${winner.player}</span>
       </div>
     </div>
 
@@ -727,7 +768,8 @@ function showGame(game) {
       player: r.Player,
       buy: money(r["Buy In"]),
       pay: money(r["Pay Out"]),
-      win: money(r["Pay Out"]) - money(r["Buy In"])
+      win: money(r["Pay Out"]) - money(r["Buy In"]),
+      isFuture: r.Future && r.Future.toLowerCase() === "yes"
     }));
 
   // Auto-sort by winnings DESC on initial display
