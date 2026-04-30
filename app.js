@@ -324,13 +324,17 @@ function renderMain() {
       ? `streak-win-${Math.min(s.max,5)}`
       : `streak-loss-${Math.min(s.max,5)}`;
 
+    // Calculate true rank based on winnings (1-based)
+    const allPlayersByWinnings = Object.values(players).sort((a, b) => b.total - a.total);
+    const trueRank = allPlayersByWinnings.findIndex(player => player.name === p.name) + 1;
+
     const tr = document.createElement("tr");
 
     // Mobile-optimized row rendering
     const streakArrow = s.type === 'W' ? '<i class="fa-solid fa-arrow-up mobile-streak-hot"></i>' : s.type === 'L' ? '<i class="fa-solid fa-arrow-down mobile-streak-cold"></i>' : '';
     
     const rowHTML = isMobile ? `
-      <td>${i + 1}</td>
+      <td>${trueRank === 1 ? '<i class="fa-solid fa-trophy" style="color: #ffd25a;"></i>' : trueRank}</td>
 
       <td class="name-cell">
         <div class="player-btn ${activePlayer===p.name?'active':''}"
@@ -347,7 +351,7 @@ function renderMain() {
       </td>
       <td>${p.gamesPlayed}</td>
     ` : `
-      <td>${i + 1}</td>
+      <td>${trueRank === 1 ? '<i class="fa-solid fa-trophy" style="color: #ffd25a;"></i>' : trueRank}</td>
 
       <td class="name-cell">
         <div class="player-btn ${activePlayer===p.name?'active':''}"
