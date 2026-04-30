@@ -167,7 +167,7 @@ tbody tr:nth-child(even) { background: #161a22; }
 .name-cell {
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* Right-align content */
+  justify-content: flex-start; /* Left-align content */
   gap: 6px;
 
   min-width: 200px;
@@ -185,7 +185,7 @@ tbody tr:nth-child(even) { background: #161a22; }
   white-space: nowrap;
   /* Larger font size for player names */
   font-size: 1.1em;
-  text-align: right;
+  text-align: left;
   flex: 1;
 }
 
@@ -497,7 +497,7 @@ td:first-child {
   display: flex;
   align-items: center;
   gap: 3px;
-  font-size: 11px;
+  font-size: 14px;
 }
 
 #detailsPanel .streak-icon-wrap {
@@ -599,6 +599,38 @@ tbody tr:hover {
 .streak-win-4 { background: rgba(255, 77, 46, 0.35); }
 .streak-win-5 { background: rgba(230, 59, 31, 0.35); }
 
+/* Breakdown table streak font colors (converted from background colors) */
+#detailsPanel .streak-loss-1 { color: rgb(74, 144, 226); background: none; }
+#detailsPanel .streak-loss-2 { color: rgb(58, 120, 184); background: none; }
+#detailsPanel .streak-loss-3 { color: rgb(46, 95, 138); background: none; }
+#detailsPanel .streak-loss-4 { color: rgb(37, 68, 95); background: none; }
+#detailsPanel .streak-loss-5 { color: rgb(27, 42, 58); background: none; }
+
+#detailsPanel .streak-win-1 { color: rgb(255, 179, 71); background: none; }
+#detailsPanel .streak-win-2 { color: rgb(255, 148, 77); background: none; }
+#detailsPanel .streak-win-3 { color: rgb(255, 107, 58); background: none; }
+#detailsPanel .streak-win-4 { color: rgb(255, 77, 46); background: none; }
+#detailsPanel .streak-win-5 { color: rgb(230, 59, 31); background: none; }
+
+/* Mobile streak icons in player names */
+.mobile-streak-hot {
+  color: #ff7b3a;
+  margin-left: 8px;
+  font-size: 0.9em;
+}
+
+.mobile-streak-cold {
+  color: #4ea1ff;
+  margin-left: 8px;
+  font-size: 0.9em;
+}
+
+.mobile-streak-spacer {
+  margin-left: 12px;
+  margin-right: 8px;
+}
+
+
 
 
 
@@ -641,7 +673,9 @@ td, th {
 
   /* Hide less critical columns on smaller screens */
   #mainTable th:nth-child(4),
-  #mainTable td:nth-child(4) {
+  #mainTable td:nth-child(4),
+  #mainTable th:nth-child(6),
+  #mainTable td:nth-child(6) {
     display: none;
   }
 
@@ -833,7 +867,7 @@ button {
 
   #detailsPanel .streak-cell {
     width: 35px;
-    font-size: 10px;
+    font-size: 12px;
     gap: 2px;
   }
 
