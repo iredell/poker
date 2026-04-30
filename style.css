@@ -152,7 +152,8 @@ td {
   vertical-align: middle;
 }
 
-/* Center text in Games Played and Streak columns */
+/* Center text in Position, Games Played and Streak columns */
+#mainTable td:nth-child(1),
 #mainTable td:nth-child(5),
 #mainTable td:nth-child(6) {
   text-align: center;
