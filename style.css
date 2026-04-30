@@ -643,6 +643,114 @@ tbody tr:hover {
   margin-right: 8px;
 }
 
+/* Table container */
+.table-container {
+  position: relative;
+}
+
+/* Active/Inactive Toggle */
+#activeToggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.active-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle-label {
+  font-size: 14px;
+  color: #cfd6e6;
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.toggle-label.left {
+  text-align: right;
+}
+
+.toggle-label.right {
+  text-align: left;
+}
+
+.toggle-switch {
+  width: 50px;
+  height: 24px;
+  background-color: #333;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-switch:hover {
+  background-color: #444;
+}
+
+.toggle-slider {
+  width: 20px;
+  height: 20px;
+  background-color: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+}
+
+.toggle-slider.active {
+  transform: translateX(26px);
+  background-color: #000;
+}
+
+@media (max-width: 768px) {
+  .active-toggle-container {
+    gap: 8px;
+  }
+  
+  .toggle-label {
+    font-size: 12px;
+    min-width: 60px;
+  }
+  
+  .toggle-switch {
+    width: 40px;
+    height: 20px;
+  }
+  
+  .toggle-slider {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .toggle-slider.active {
+    transform: translateX(20px);
+  }
+}
+
+/* Inactive player styling */
+.inactive-player {
+  opacity: 0.75;
+}
+
+.inactive-player .player-name {
+  color: #aaaaaa;
+}
+
+.inactive-player .win,
+.inactive-player .loss,
+.inactive-player .neutral {
+  opacity: 0.8;
+}
+
+.inactive-player .player-btn {
+  opacity: 0.7;
+}
+
+
 
 
 
