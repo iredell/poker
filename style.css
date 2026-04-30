@@ -165,13 +165,14 @@ tbody tr:nth-child(even) { background: #161a22; }
   justify-content: flex-end; /* Right-align content */
   gap: 6px;
 
-  min-width: 140px;
+  min-width: 200px;
+  width: auto;
 }
 
 .player-name {
   color: #ffffff;
   font-weight: 900;
-  max-width: 200px;
+  max-width: none;
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -180,6 +181,7 @@ tbody tr:nth-child(even) { background: #161a22; }
   /* Larger font size for player names */
   font-size: 1.1em;
   text-align: right;
+  flex: 1;
 }
 
 /* ICON */
@@ -424,13 +426,18 @@ td:first-child {
   margin: 0 auto;
 }
 
+/* Center breakdown table headers */
+#detailsPanel th {
+  text-align: center;
+}
+
 /* Breakdown table streak column */
 #detailsPanel .streak-cell {
-  width: 70px;
+  width: 40px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 3px;
+  font-size: 11px;
 }
 
 #detailsPanel .streak-icon-wrap {
@@ -440,6 +447,7 @@ td:first-child {
 
 #detailsPanel .streak-text {
   display: inline-block;
+  white-space: nowrap;
 }
 
 .player-name {
@@ -578,14 +586,16 @@ td, th {
   }
 
   .player-name {
-    max-width: 150px;
+    max-width: none;
     font-size: 16px;
+    flex: 1;
   }
 
   /* Adjust name cell for mobile */
   .name-cell {
-    min-width: 140px;
+    min-width: 180px;
     gap: 4px;
+    flex: 1;
   }
 
   /* Better streak display on mobile */
@@ -619,12 +629,14 @@ td, th {
   }
 
   .player-name {
-    max-width: 80px;
+    max-width: none;
     font-size: 14px;
+    flex: 1;
   }
 
   .name-cell {
-    min-width: 100px;
+    min-width: 120px;
+    flex: 1;
   }
 
   h1 {
@@ -749,8 +761,9 @@ button {
   }
 
   #detailsPanel .streak-cell {
+    width: 35px;
     font-size: 10px;
-    gap: 3px;
+    gap: 2px;
   }
 
   #detailsPanel td, 
