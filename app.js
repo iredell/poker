@@ -283,9 +283,6 @@ function renderMain() {
         <th onclick="sortMain('gamesPlayed')" style="touch-action: manipulation;">
           Games ${getSortIcon(sortState.key, 'gamesPlayed', sortState)}
         </th>
-        <th onclick="sortMain('streak')" style="touch-action: manipulation;">
-          Streak ${getSortIcon(sortState.key, 'streak', sortState)}
-        </th>
       </tr>
     </thead>
   ` : `
@@ -330,38 +327,34 @@ function renderMain() {
     const tr = document.createElement("tr");
 
     // Mobile-optimized row rendering
+    const streakArrow = s.type === 'W' ? '<i class="fa-solid fa-arrow-up mobile-streak-hot"></i>' : s.type === 'L' ? '<i class="fa-solid fa-arrow-down mobile-streak-cold"></i>' : '';
+    
     const rowHTML = isMobile ? `
       <td>${i + 1}</td>
 
       <td class="name-cell">
-        <span class="player-name">${p.name}</span>
         <div class="player-btn ${activePlayer===p.name?'active':''}"
-             onclick="togglePlayer('${p.name}')"
+             onclick="togglePlayer('${p.name}')" 
              style="touch-action: manipulation;">
           <i class="fa-solid fa-chart-line"></i>
         </div>
+        ${streakArrow ? `<span class="mobile-streak-spacer">${streakArrow}</span>` : ''}
+        <span class="player-name">${p.name}</span>
       </td>
 
       <td class="${moneyClass(p.total)}">
         ${fmt(p.total)}
       </td>
       <td>${p.gamesPlayed}</td>
-
-      <td class="streak-cell ${cls}">
-        <span class="streak-icon-wrap">${icon}</span>
-        <span class="streak-text">
-          ${isWin ? "W" : "L"}${s.max}
-        </span>
-      </td>
     ` : `
       <td>${i + 1}</td>
 
       <td class="name-cell">
-        <span class="player-name">${p.name}</span>
         <div class="player-btn ${activePlayer===p.name?'active':''}"
              onclick="togglePlayer('${p.name}')">
           <i class="fa-solid fa-chart-line"></i>
         </div>
+        <span class="player-name">${p.name}</span>
       </td>
 
       <td class="${moneyClass(p.total)}">
@@ -491,7 +484,7 @@ function renderPlayerTable(name) {
   const rows = sortDetail(playerDetailRows, detailSort.key, p.history);
 
   const isMobile = isMobileDevice();
-  const headerText = isMobile ? `<span class="breakdown-primary">${name.toUpperCase()}</span>` : `${name.toUpperCase()} - Player Breakdown`;
+  const headerText = isMobile ? `<span class="breakdown-primary">${name.toUpperCase()}</span><br><span class="breakdown-subtitle">Player Stats</span>` : `${name.toUpperCase()} - Player Stats`;
   
   const streak = calcStreaks(p.history);
   const streakText = streak.type === "W" ? `W${streak.max}` : streak.type === "L" ? `L${streak.max}` : "No streak";
@@ -615,7 +608,7 @@ function renderGameTable(game) {
   const rows = sortDetail(gameDetailRows, detailSort.key);
 
   const isMobile = isMobileDevice();
-  const headerText = isMobile ? `<span class="breakdown-primary">GAME ${game}</span>` : `GAME ${game} - Game Breakdown`;
+  const headerText = isMobile ? `<span class="breakdown-primary">GAME ${game}</span><br><span class="breakdown-subtitle">Game Stats</span>` : `GAME ${game} - Game Stats`;
   
   // Calculate game stats
   const totalPlayers = gameDetailRows.length;
