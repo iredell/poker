@@ -19,59 +19,6 @@ function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 }
 
-// Improve mobile scrolling experience
-function optimizeTableScroll() {
-  const tableWrap = document.querySelector('.table-wrap');
-  if (tableWrap && isMobileDevice()) {
-    // Add momentum scrolling for iOS
-    tableWrap.style.webkitOverflowScrolling = 'touch';
-
-    // Show/hide scroll indicators
-    let scrollTimeout;
-    tableWrap.addEventListener('scroll', function() {
-      this.style.scrollbarColor = '#ffd25a #151821';
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        this.style.scrollbarColor = 'transparent transparent';
-      }, 1500);
-    });
-  }
-}
-
-// Handle orientation changes
-function handleOrientationChange() {
-  if (isMobileDevice()) {
-    setTimeout(() => {
-      window.scrollTo(0, 0);
-      renderMain();
-      optimizeTableScroll();
-    }, 100);
-  }
-}
-
-// Add touch feedback for better mobile interaction
-function addTouchFeedback() {
-  if (!isMobileDevice()) return;
-
-  document.addEventListener('touchstart', function(e) {
-    const target = e.target.closest('.game-btn, .player-btn, th[onclick]');
-    if (target) {
-      target.style.transform = 'scale(0.98)';
-      target.style.transition = 'transform 0.1s ease';
-    }
-  }, { passive: true });
-
-  document.addEventListener('touchend', function(e) {
-    const target = e.target.closest('.game-btn, .player-btn, th[onclick]');
-    if (target) {
-      setTimeout(() => {
-        target.style.transform = '';
-        target.style.transition = '';
-      }, 100);
-    }
-  }, { passive: true });
-}
-
 
 
 
@@ -100,12 +47,21 @@ let playerDetailRows = [];
 let gameDetailRows = [];
 
 
-function sortDetail(rows, key) {
+function sortDetail(rows, key, playerHistory = null) {
   if (!key) return rows;
 
   return [...rows].sort((a, b) => {
-    const A = a[key];
-    const B = b[key];
+    let A, B;
+    
+    if (key === "streak" && playerHistory) {
+      const indexA = rows.indexOf(a);
+      const indexB = rows.indexOf(b);
+      A = getDetailSortValue(a, key, playerHistory, indexA);
+      B = getDetailSortValue(b, key, playerHistory, indexB);
+    } else {
+      A = a[key];
+      B = b[key];
+    }
 
     if (typeof A === "string") {
       return A.localeCompare(B) * detailSort.dir;
@@ -220,6 +176,17 @@ function getSortValue(p, key) {
   if (key === "streak") return calcStreaks(p.history).value;
   if (key === "name") return p.name;
   return p[key];
+}
+
+function getDetailSortValue(row, key, playerHistory, index) {
+  if (!key) return null;
+
+  if (key === "streak") {
+    const historyUpToGame = playerHistory.slice(0, index + 1);
+    return calcStreaks(historyUpToGame).value;
+  }
+  if (typeof row[key] === "string") return row[key];
+  return row[key];
 }
 
 function sortRows(rows, key) {
@@ -417,9 +384,6 @@ function renderMain() {
   });
 
   table.appendChild(tbody);
-
-  // Optimize mobile scrolling after render
-  setTimeout(optimizeTableScroll, 100);
 }
 
 function toggleGame(game) {
@@ -524,31 +488,34 @@ window.renderPlayerSorted = function (key) {
 function renderPlayerTable(name) {
   const p = players[name];
 
-  const rows = sortDetail(playerDetailRows, detailSort.key);
+  const rows = sortDetail(playerDetailRows, detailSort.key, p.history);
 
   const isMobile = isMobileDevice();
-  const headerText = isMobile ? `${name}<br>Player Breakdown` : `${name} - Player Breakdown`;
+  const headerText = isMobile ? `${name}<br><span class="breakdown-subtitle">Player Breakdown</span>` : `${name} - Player Breakdown`;
   
   const streak = calcStreaks(p.history);
   const streakText = streak.type === "W" ? `W${streak.max}` : streak.type === "L" ? `L${streak.max}` : "No streak";
   
   const winningsClass = p.total > 0 ? 'win' : p.total < 0 ? 'loss' : 'neutral';
   
+  const streakIcon = streak.type === "W" ? '<i class="fa-solid fa-fire streak-icon hot"></i>' : streak.type === "L" ? '<i class="fa-solid fa-snowflake streak-icon cold"></i>' : '<i class="fa-solid fa-minus"></i>';
+  const streakColorClass = streak.type === "W" ? 'win' : streak.type === "L" ? 'loss' : 'neutral';
+  
   const content = `
     <h2>${headerText}</h2>
 
     <div class="player-stats-bar">
       <div class="stat">
-        Winnings: <span class="stat-value ${winningsClass}">${fmt(p.total)}</span>
+        <span class="stat-name">Winnings</span>:<span class="stat-value ${winningsClass}">${fmt(p.total)}</span>
       </div>
       <div class="stat">
-        Lifetime Buy-In: <span class="stat-value">${fmt(p.lifetimeBuy)}</span>
+        <span class="stat-name">Lifetime Buy-In</span>:<span class="stat-value buy">${fmt(p.lifetimeBuy)}</span>
       </div>
       <div class="stat">
-        Games Played: <span class="stat-value">${p.gamesPlayed}</span>
+        <span class="stat-name">Games Played</span>:<span class="stat-value">${p.gamesPlayed}</span>
       </div>
       <div class="stat">
-        Streak: <span class="stat-value">${streakText}</span>
+        <span class="stat-name">${streakIcon} Streak</span>:<span class="stat-value ${streakColorClass}">${streakText}</span>
       </div>
     </div>
 
@@ -568,18 +535,39 @@ function renderPlayerTable(name) {
             <th onclick="renderPlayerSorted('win')">
               Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
             </th>
+            <th onclick="renderPlayerSorted('streak')">
+              Streak ${getSortIcon(detailSort.key, 'streak', detailSort)}
+            </th>
           </tr>
         </thead>
 
         <tbody>
-          ${rows.map(r => `
-            <tr>
-              <td>${r.game}</td>
-              <td class="buy">${fmt(r.buy)}</td>
-              <td class="pay">${fmt(r.pay)}</td>
-              <td class="${r.win >= 0 ? 'win' : 'loss'}">${fmt(r.win)}</td>
-            </tr>
-          `).join("")}
+          ${rows.map((r, index) => {
+            // Calculate streak up to this game
+            const historyUpToGame = p.history.slice(0, index + 1);
+            const gameStreak = calcStreaks(historyUpToGame);
+            const isWin = gameStreak.type === "W";
+            const streakIcon = isWin 
+              ? `<i class="fa-solid fa-fire streak-icon hot"></i>` 
+              : `<i class="fa-solid fa-snowflake streak-icon cold"></i>`;
+            const streakClass = isWin 
+              ? `streak-win-${Math.min(gameStreak.max, 5)}` 
+              : `streak-loss-${Math.min(gameStreak.max, 5)}`;
+            const streakText = gameStreak.type ? `${gameStreak.type}${gameStreak.max}` : "-";
+            
+            return `
+              <tr>
+                <td>${r.game}</td>
+                <td class="buy">${fmt(r.buy)}</td>
+                <td class="pay">${fmt(r.pay)}</td>
+                <td class="${r.win >= 0 ? 'win' : 'loss'}">${fmt(r.win)}</td>
+                <td class="streak-cell ${streakClass}">
+                  <span class="streak-icon-wrap">${streakIcon}</span>
+                  <span class="streak-text">${streakText}</span>
+                </td>
+              </tr>
+            `;
+          }).join("")}
         </tbody>
       </table>
     </div>
@@ -596,7 +584,8 @@ function showPlayer(name) {
     game: g,
     buy: v.buy,
     pay: v.pay,
-    win: v.win
+    win: v.win,
+    streak: 0 // Will be calculated in render
   }));
 
   renderPlayerTable(name);
@@ -622,10 +611,27 @@ function renderGameTable(game) {
   const rows = sortDetail(gameDetailRows, detailSort.key);
 
   const isMobile = isMobileDevice();
-  const headerText = isMobile ? `Game ${game}<br>Game Breakdown` : `Game ${game} - Game Breakdown`;
+  const headerText = isMobile ? `Game ${game}<br><span class="breakdown-subtitle">Game Breakdown</span>` : `Game ${game} - Game Breakdown`;
+  
+  // Calculate game stats
+  const totalPlayers = gameDetailRows.length;
+  const totalBuyIn = gameDetailRows.reduce((sum, row) => sum + row.buy, 0);
+  const winner = gameDetailRows.reduce((prev, current) => (current.win > prev.win) ? current : prev);
   
   const content = `
     <h2>${headerText}</h2>
+
+    <div class="player-stats-bar">
+      <div class="stat">
+        <span class="stat-name">Total Players</span>:<span class="stat-value">${totalPlayers}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-name">Total Buy-In</span>:<span class="stat-value buy">${fmt(totalBuyIn)}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-name">Winner</span>:<span class="stat-value win">${winner.player}</span>
+      </div>
+    </div>
 
     <div class="table-wrap">
       <table>
@@ -694,24 +700,5 @@ Papa.parse(SHEET_URL, {
     renderMain();
     renderGames();
 
-    // Initialize mobile enhancements
-    if (isMobileDevice()) {
-      addTouchFeedback();
-      optimizeTableScroll();
-
-      // Handle orientation changes
-      window.addEventListener('orientationchange', handleOrientationChange);
-      window.addEventListener('resize', handleOrientationChange);
-
-      // Prevent zoom on double tap for better UX
-      let lastTouchEnd = 0;
-      document.addEventListener('touchend', function (event) {
-        const now = (new Date()).getTime();
-        if (now - lastTouchEnd <= 300) {
-          event.preventDefault();
-        }
-        lastTouchEnd = now;
-      }, false);
-    }
   }
 });
