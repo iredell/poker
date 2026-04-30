@@ -360,17 +360,30 @@ tbody tr:nth-child(even) { background: #161a22; }
   color: #f2d46b;
 }
 
-/* Streak font color coding (not background) */
+/* Winnings color coding (standard green/red/yellow) */
 .player-stats-bar .stat-value.win {
-  color: #7ee787;
+  color: #7ee787; /* Green for wins */
 }
 
 .player-stats-bar .stat-value.loss {
-  color: #ff7b7b;
+  color: #ff7b7b; /* Red for losses */
 }
 
 .player-stats-bar .stat-value.neutral {
-  color: #f2d46b;
+  color: #f2d46b; /* Yellow for neutral */
+}
+
+/* Streak font color coding (cold to hot scale) - separate from winnings */
+.player-stats-bar .streak-hot {
+  color: #ff7b3a; /* Hot orange for winning streaks */
+}
+
+.player-stats-bar .streak-cold {
+  color: #4ea1ff; /* Cool blue for losing streaks */
+}
+
+.player-stats-bar .streak-neutral {
+  color: #f2d46b; /* Yellow for no streak */
 }
 
 td:first-child {
@@ -389,8 +402,13 @@ td:first-child {
   font-size: 0.9em;
   color: #cfd6e6;
   font-weight: normal;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.5px;
+}
+
+#detailsPanel .breakdown-primary {
+  font-size: 1.2em;
+  font-weight: 900;
 }
 
 
@@ -424,6 +442,9 @@ td:first-child {
 #detailsPanel table {
   min-width: 700px;
   margin: 0 auto;
+  border: 1px solid #2a3441;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 /* Center breakdown table headers */
@@ -663,6 +684,10 @@ td, th {
   #detailsPanel .breakdown-subtitle {
     font-size: 0.9em;
   }
+
+  #detailsPanel .breakdown-primary {
+    font-size: 1.2em;
+  }
 }
 
 button {
@@ -740,6 +765,10 @@ button {
     font-size: 1em;
     margin-top: -5px;
     margin-bottom: 10px;
+  }
+
+  #detailsPanel .breakdown-primary {
+    font-size: 1.4em;
   }
 
   /* Mobile player stats bar */
