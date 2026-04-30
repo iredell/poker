@@ -644,9 +644,11 @@ tbody tr:hover {
 }
 
 .mobile-streak-inactive {
-  color: #888888;
+  color: #888888 !important;
   margin-left: 8px;
   font-size: 0.9em;
+  filter: grayscale(100%);
+  opacity: 0.7;
 }
 
 /* Table container */
@@ -768,6 +770,17 @@ tbody tr:hover {
 
 .inactive-player .player-btn {
   opacity: 0.9;
+}
+
+/* Future game styling */
+.future-game {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.streak-future {
+  color: #888888;
+  background: none;
 }
 
 
