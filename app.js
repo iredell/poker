@@ -581,9 +581,9 @@ function showPlayer(name) {
     streak: 0 // Will be calculated in render
   }));
 
-  // Auto-sort by game ASC on initial display
+  // Auto-sort by game DESC on initial display
   detailSort.key = 'game';
-  detailSort.dir = 1;
+  detailSort.dir = -1;
 
   renderPlayerTable(name);
 }
