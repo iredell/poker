@@ -491,7 +491,7 @@ function renderPlayerTable(name) {
   const rows = sortDetail(playerDetailRows, detailSort.key, p.history);
 
   const isMobile = isMobileDevice();
-  const headerText = isMobile ? `<span class="breakdown-primary">${name.toUpperCase()}</span><br><span class="breakdown-subtitle">Player Breakdown</span>` : `${name.toUpperCase()} - Player Breakdown`;
+  const headerText = isMobile ? `<span class="breakdown-primary">${name.toUpperCase()}</span>` : `${name.toUpperCase()} - Player Breakdown`;
   
   const streak = calcStreaks(p.history);
   const streakText = streak.type === "W" ? `W${streak.max}` : streak.type === "L" ? `L${streak.max}` : "No streak";
@@ -524,7 +524,7 @@ function renderPlayerTable(name) {
         <thead>
           <tr>
             <th onclick="renderPlayerSorted('game')">
-              ${isMobile ? 'G' : 'Game'} ${getSortIcon(detailSort.key, 'game', detailSort)}
+              Game ${getSortIcon(detailSort.key, 'game', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('buy')">
               ${isMobile ? 'In' : 'BuyIn'} ${getSortIcon(detailSort.key, 'buy', detailSort)}
@@ -536,7 +536,7 @@ function renderPlayerTable(name) {
               Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('streak')">
-              ${isMobile ? 'STK' : 'Streak'} ${getSortIcon(detailSort.key, 'streak', detailSort)}
+              Streak ${getSortIcon(detailSort.key, 'streak', detailSort)}
             </th>
           </tr>
         </thead>
@@ -615,7 +615,7 @@ function renderGameTable(game) {
   const rows = sortDetail(gameDetailRows, detailSort.key);
 
   const isMobile = isMobileDevice();
-  const headerText = isMobile ? `<span class="breakdown-primary">GAME ${game}</span><br><span class="breakdown-subtitle">Game Breakdown</span>` : `GAME ${game} - Game Breakdown`;
+  const headerText = isMobile ? `<span class="breakdown-primary">GAME ${game}</span>` : `GAME ${game} - Game Breakdown`;
   
   // Calculate game stats
   const totalPlayers = gameDetailRows.length;
