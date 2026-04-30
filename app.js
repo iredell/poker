@@ -665,13 +665,13 @@ function renderGameTable(game) {
 
     <div class="player-stats-bar">
       <div class="stat">
-        <span class="stat-name">Total Players</span><span class="stat-colon">:</span><span class="stat-value">${totalPlayers}</span>
+        <span class="stat-name">Players</span><span class="stat-colon">:</span><span class="stat-value">${totalPlayers}</span>
       </div>
       <div class="stat">
-        <span class="stat-name">Total Buy-In</span><span class="stat-colon">:</span><span class="stat-value buy">${fmt(totalBuyIn)}</span>
+        <span class="stat-name">Pot</span><span class="stat-colon">:</span><span class="stat-value buy">${fmt(totalBuyIn)}</span>
       </div>
       <div class="stat">
-        <span class="stat-name">Winner</span><span class="stat-colon">:</span><span class="stat-value win">${winner.player}</span>
+        <span class="stat-name">Chip Leader</span><span class="stat-colon">:</span><span class="stat-value win">${winner.player}</span>
       </div>
     </div>
 
