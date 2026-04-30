@@ -515,7 +515,7 @@ function renderPlayerTable(name) {
         <span class="stat-name">Games Played</span><span class="stat-colon">:</span><span class="stat-value">${p.gamesPlayed}</span>
       </div>
       <div class="stat">
-        <span class="stat-name">${streakIcon} Streak</span><span class="stat-colon">:</span><span class="stat-value ${streakColorClass}">${streakText}</span>
+        <span class="stat-name">Streak ${streakIcon}</span><span class="stat-colon">:</span><span class="stat-value ${streakColorClass}">${streakText}</span>
       </div>
     </div>
 
@@ -527,10 +527,10 @@ function renderPlayerTable(name) {
               ${isMobile ? 'G' : 'Game'} ${getSortIcon(detailSort.key, 'game', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('buy')">
-              Buy In ${getSortIcon(detailSort.key, 'buy', detailSort)}
+              BuyIn ${getSortIcon(detailSort.key, 'buy', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('pay')">
-              Pay Out ${getSortIcon(detailSort.key, 'pay', detailSort)}
+              PayOut ${getSortIcon(detailSort.key, 'pay', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('win')">
               Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
@@ -588,6 +588,10 @@ function showPlayer(name) {
     streak: 0 // Will be calculated in render
   }));
 
+  // Auto-sort by game ASC on initial display
+  detailSort.key = 'game';
+  detailSort.dir = 1;
+
   renderPlayerTable(name);
 }
 
@@ -641,10 +645,10 @@ function renderGameTable(game) {
               Player ${getSortIcon(detailSort.key, 'player', detailSort)}
             </th>
             <th onclick="renderGameSorted('buy')">
-              Buy In ${getSortIcon(detailSort.key, 'buy', detailSort)}
+              BuyIn ${getSortIcon(detailSort.key, 'buy', detailSort)}
             </th>
             <th onclick="renderGameSorted('pay')">
-              Pay Out ${getSortIcon(detailSort.key, 'pay', detailSort)}
+              PayOut ${getSortIcon(detailSort.key, 'pay', detailSort)}
             </th>
             <th onclick="renderGameSorted('win')">
               Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
