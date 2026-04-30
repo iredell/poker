@@ -367,8 +367,17 @@ function renderMain() {
 
     const tr = document.createElement("tr");
 
-    // Mobile-optimized row rendering
-    const streakArrow = s.type === 'W' ? '<i class="fa-solid fa-arrow-up mobile-streak-hot"></i>' : s.type === 'L' ? '<i class="fa-solid fa-arrow-down mobile-streak-cold"></i>' : '';
+    // Mobile-optimized row rendering - check for recent activity
+    const allGameNumbers = [...games].sort((a, b) => b - a); // Sort games descending (newest first)
+    const lastTwoGames = allGameNumbers.slice(0, 2);
+    const hasPlayedRecentTwoGames = lastTwoGames.some(gameNum => p.perGame[gameNum]);
+    
+    let streakArrow = '';
+    if (!hasPlayedRecentTwoGames && allGameNumbers.length >= 2) {
+      streakArrow = '<i class="fa-solid fa-minus mobile-streak-inactive"></i>';
+    } else {
+      streakArrow = s.type === 'W' ? '<i class="fa-solid fa-arrow-up mobile-streak-hot"></i>' : s.type === 'L' ? '<i class="fa-solid fa-arrow-down mobile-streak-cold"></i>' : '';
+    }
 
     const rowHTML = isMobile ? `
       <td>${trueRank === 1 ? '<i class="fa-solid fa-trophy" style="color: #ffd25a;"></i>' : trueRank}</td>
@@ -565,10 +574,10 @@ function renderPlayerTable(name) {
               Game ${getSortIcon(detailSort.key, 'game', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('buy')">
-              ${isMobile ? 'In' : 'BuyIn'} ${getSortIcon(detailSort.key, 'buy', detailSort)}
+              ${isMobile ? 'In' : 'Buy In'} ${getSortIcon(detailSort.key, 'buy', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('pay')">
-              ${isMobile ? 'Out' : 'PayOut'} ${getSortIcon(detailSort.key, 'pay', detailSort)}
+              ${isMobile ? 'Out' : 'Payout'} ${getSortIcon(detailSort.key, 'pay', detailSort)}
             </th>
             <th onclick="renderPlayerSorted('win')">
               Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
@@ -683,10 +692,10 @@ function renderGameTable(game) {
               Player ${getSortIcon(detailSort.key, 'player', detailSort)}
             </th>
             <th onclick="renderGameSorted('buy')">
-              ${isMobile ? 'In' : 'BuyIn'} ${getSortIcon(detailSort.key, 'buy', detailSort)}
+              ${isMobile ? 'In' : 'Buy In'} ${getSortIcon(detailSort.key, 'buy', detailSort)}
             </th>
             <th onclick="renderGameSorted('pay')">
-              ${isMobile ? 'Out' : 'PayOut'} ${getSortIcon(detailSort.key, 'pay', detailSort)}
+              ${isMobile ? 'Out' : 'Payout'} ${getSortIcon(detailSort.key, 'pay', detailSort)}
             </th>
             <th onclick="renderGameSorted('win')">
               Winnings ${getSortIcon(detailSort.key, 'win', detailSort)}
