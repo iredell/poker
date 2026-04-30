@@ -172,6 +172,7 @@ tbody tr:nth-child(even) { background: #161a22; }
 
   min-width: 200px;
   width: auto;
+  padding-left: 8px;
 }
 
 .player-name {
@@ -830,7 +831,8 @@ button {
     font-size: 1.8em;
     margin-bottom: 15px;
     text-align: center;
-    padding-right: 30px;
+    padding-right: 15px;
+    padding-left: 15px;
     line-height: 1.2;
   }
 
