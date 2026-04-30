@@ -653,6 +653,9 @@ tbody tr:hover {
   display: flex;
   justify-content: center;
   margin-bottom: 15px;
+  background: rgba(255, 0, 0, 0.1);
+  padding: 10px;
+  min-height: 40px;
 }
 
 .active-toggle-container {
@@ -707,13 +710,30 @@ tbody tr:hover {
 }
 
 @media (max-width: 768px) {
+  #activeToggle {
+    display: flex !important;
+    justify-content: center;
+    margin-bottom: 15px;
+    padding: 15px 10px;
+    width: 100%;
+    box-sizing: border-box;
+    background: rgba(0, 255, 0, 0.1);
+    position: relative;
+    z-index: 10;
+  }
+  
   .active-toggle-container {
     gap: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   .toggle-label {
     font-size: 12px;
-    min-width: 60px;
+    min-width: 50px;
+    color: #cfd6e6;
+    font-weight: 600;
   }
   
   .toggle-switch {
