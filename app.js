@@ -392,16 +392,27 @@ function renderMain() {
 
     const tr = document.createElement("tr");
 
-    // Mobile-optimized row rendering - check for recent activity
-    const allGameNumbers = [...games].sort((a, b) => b - a); // Sort games descending (newest first)
-    const lastTwoGames = allGameNumbers.slice(0, 2);
-    const hasPlayedRecentTwoGames = lastTwoGames.some(gameNum => p.perGame[gameNum]);
-    
+    // Mobile-optimized row rendering - check for recent activity and future-only status
     let streakArrow = '';
-    if (!hasPlayedRecentTwoGames && allGameNumbers.length >= 2) {
-      streakArrow = '<span class="mobile-streak-inactive">💤</span>';
+    
+    // Check if player has only future games (no real history)
+    if (p.history.length === 0) {
+      streakArrow = '<i class="fa-solid fa-minus mobile-streak-inactive"></i>';
     } else {
-      streakArrow = s.type === 'W' ? '<i class="fa-solid fa-arrow-up mobile-streak-hot"></i>' : s.type === 'L' ? '<i class="fa-solid fa-arrow-down mobile-streak-cold"></i>' : '';
+      // Check for recent activity in last 2 non-future games
+      const nonFutureGames = [...games].filter(gameNum => {
+        const gameData = raw.filter(r => r["Game No."] == gameNum);
+        return !gameData.every(r => r.Future && r.Future.toLowerCase() === "yes");
+      }).sort((a, b) => b - a);
+      
+      const lastTwoNonFutureGames = nonFutureGames.slice(0, 2);
+      const hasPlayedRecentTwoGames = lastTwoNonFutureGames.some(gameNum => p.perGame[gameNum] && !p.perGame[gameNum].isFuture);
+      
+      if (!hasPlayedRecentTwoGames && nonFutureGames.length >= 2) {
+        streakArrow = '<span class="mobile-streak-inactive">💤</span>';
+      } else {
+        streakArrow = s.type === 'W' ? '<i class="fa-solid fa-arrow-up mobile-streak-hot"></i>' : s.type === 'L' ? '<i class="fa-solid fa-arrow-down mobile-streak-cold"></i>' : '';
+      }
     }
 
     const rowHTML = isMobile ? `
@@ -663,14 +674,34 @@ function renderPlayerTable(name) {
 function showPlayer(name) {
   const p = players[name];
 
-  playerDetailRows = Object.entries(p.perGame).map(([g, v]) => ({
-    game: g,
-    buy: v.buy,
-    pay: v.pay,
-    win: v.win,
-    isFuture: v.isFuture || false,
-    streak: 0 // Will be calculated in render
-  }));
+  // If player has no real history (future-only), show simple message
+  if (p.history.length === 0) {
+    const isMobile = isMobileDevice();
+    const headerText = isMobile ? `<span class="breakdown-primary">${name.toUpperCase()}</span><br><span class="breakdown-subtitle">Player Stats</span>` : `${name.toUpperCase()} - Player Stats`;
+    
+    const content = `
+      <h2>${headerText}</h2>
+      <div style="text-align: center; padding: 40px 20px; color: #888888; font-size: 18px; opacity: 0.7;">
+        <i class="fa-solid fa-clock" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+        No games played yet
+      </div>
+    `;
+    
+    showDetailsPanel(content);
+    return;
+  }
+  
+  // Only show non-future games for players with real history
+  playerDetailRows = Object.entries(p.perGame)
+    .filter(([g, v]) => !v.isFuture)
+    .map(([g, v]) => ({
+      game: g,
+      buy: v.buy,
+      pay: v.pay,
+      win: v.win,
+      isFuture: false,
+      streak: 0 // Will be calculated in render
+    }));
 
   // Auto-sort by game DESC on initial display
   detailSort.key = 'game';
