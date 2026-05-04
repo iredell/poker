@@ -234,50 +234,56 @@ tbody tr:nth-child(even) { background: #161a22; }
 #gameButtons {
   margin-top: 14px;
   padding: 8px 4px;
-  text-align: center;
-  overflow-x: auto;
-  white-space: nowrap;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
 }
 
 @media (max-width: 768px) {
   #gameButtons {
     padding: 10px 8px;
     margin-top: 20px;
+    gap: 8px;
+    justify-content: center;
   }
 }
 
 .game-btn {
-  margin: 6px 6px 0 0;
   padding: 7px 14px;
-
   border-radius: 999px;
   border: 1px solid rgba(255, 210, 90, 0.7);
-
   background: rgba(255, 210, 90, 0.08);
   color: #ffd25a;
-
   font-family: "Concert One", sans-serif;
   font-size: 14px;
   letter-spacing: 0.5px;
-
   cursor: pointer;
-
   transition: all 0.18s ease;
-  /* Better mobile touch targets */
   min-height: 44px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 @media (max-width: 768px) {
   .game-btn {
     padding: 12px 16px;
     font-size: 16px;
-    margin: 6px 8px 6px 0;
-    /* Prevent layout shifts on touch */
     touch-action: manipulation;
+    flex: 0 0 auto;
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-btn {
+    padding: 10px 14px;
+    font-size: 15px;
+    min-width: 70px;
   }
 }
 
