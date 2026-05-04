@@ -655,11 +655,19 @@ function renderPlayerTable(name) {
               streakClass = 'streak-future';
               streakText = 'TBD';
             } else {
-              // Calculate streak up to this game (excluding future games)
-              const nonFutureHistory = p.history; // Already filtered in build()
-              const gameIndex = nonFutureHistory.indexOf(r.win);
-              const historyUpToGame = gameIndex >= 0 ? nonFutureHistory.slice(0, gameIndex + 1) : [];
-              const gameStreak = calcStreaks(historyUpToGame);
+              // Calculate streak up to this game chronologically
+              // First, get all games in chronological order (by game number)
+              const allPlayerGames = Object.entries(p.perGame)
+                .filter(([g, v]) => !v.isFuture)
+                .sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+              
+              // Find this game's position in chronological order
+              const currentGameNum = parseInt(r.game);
+              const gamesUpToThisOne = allPlayerGames
+                .filter(([g, v]) => parseInt(g) <= currentGameNum)
+                .map(([g, v]) => v.win);
+              
+              const gameStreak = calcStreaks(gamesUpToThisOne);
               const isWin = gameStreak.type === "W";
               const isLoss = gameStreak.type === "L";
               streakIcon = isWin
