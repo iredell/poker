@@ -166,6 +166,7 @@ tbody tr:nth-child(even) { background: #161a22; }
 .win { color: #7ee787; }
 .loss { color: #ff7b7b; }
 .neutral { color: #f2d46b; }
+.zero { color: #b794f6; }
 
 .buy { color: #4ea1ff; }
 .pay { color: #ddd; }
@@ -388,6 +389,10 @@ tbody tr:nth-child(even) { background: #161a22; }
 
 .player-stats-bar .stat-value.neutral {
   color: #f2d46b; /* Yellow for neutral */
+}
+
+.player-stats-bar .stat-value.zero {
+  color: #b794f6; /* Purple for zero winnings */
 }
 
 /* Streak font color coding (cold to hot scale) - separate from winnings */
@@ -630,17 +635,18 @@ tbody tr:hover {
   color: #ff7b3a;
   margin-left: 8px;
   font-size: 0.9em;
+  display: inline-block;
+  width: 14px;
+  text-align: center;
 }
 
 .mobile-streak-cold {
   color: #4ea1ff;
   margin-left: 8px;
   font-size: 0.9em;
-}
-
-.mobile-streak-spacer {
-  margin-left: 12px;
-  margin-right: 8px;
+  display: inline-block;
+  width: 14px;
+  text-align: center;
 }
 
 .mobile-streak-inactive {
@@ -650,8 +656,13 @@ tbody tr:hover {
   filter: grayscale(100%);
   opacity: 0.7;
   display: inline-block;
-  width: 12px;
+  width: 14px;
   text-align: center;
+}
+
+.mobile-streak-spacer {
+  margin-left: 12px;
+  margin-right: 8px;
 }
 
 /* Table container */
